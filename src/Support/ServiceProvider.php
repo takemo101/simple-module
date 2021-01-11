@@ -3,9 +3,18 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
+use ReflectionClass;
 
 class ServiceProvider extends LaravelServiceProvider
 {
+    protected $dir;
+
+    public function __construct($app)
+    {
+        parent::__construct($app);
+        $this->dir = dirname((new ReflectionClass(static::class))->getFileName());
+    }
+
     protected function composerRequire($package, array $options = [])
     {
         $this->app['simple-module.composer']->require($package, $options);
@@ -37,5 +46,15 @@ class ServiceProvider extends LaravelServiceProvider
         if (count($packages)) {
             $this->composerRemove($packages);
         }
+    }
+
+    /**
+     * return module path
+     */
+    public function path(string $path = '')
+    {
+        $separator = DIRECTORY_SEPARATOR;
+        $path = ltrim($path, $separator);
+        return $path ? "{$this->dir}{$separator}{$path}" : $this->dir;
     }
 }
