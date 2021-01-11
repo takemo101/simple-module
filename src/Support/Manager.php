@@ -199,11 +199,11 @@ class Manager implements ManagerContract
         foreach ($modules as $module) {
             $instance = $this->resolveModuleProvider($module);
 
-            if ($instance instanceof InstallerInterface) {
-                $instance->install();
-            }
             if ($instance instanceof ServiceProvider) {
                 $instance->autoPackageRequire();
+            }
+            if ($instance instanceof InstallerInterface) {
+                $instance->install();
             }
 
             $module->installed();
