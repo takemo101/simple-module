@@ -6,12 +6,12 @@ use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
 class ServiceProvider extends LaravelServiceProvider
 {
-    protected function composerRequire(string $package, array $options = [])
+    protected function composerRequire($package, array $options = [])
     {
         $this->app['simple-module.composer']->require($package, $options);
     }
 
-    protected function composerRemove(string $package, array $options = [])
+    protected function composerRemove($package, array $options = [])
     {
         $this->app['simple-module.composer']->remove($package);
     }
@@ -25,17 +25,17 @@ class ServiceProvider extends LaravelServiceProvider
 
     public function autoPackageRequire()
     {
-        $packages = $this->packages();
-        foreach($packages as $package) {
-            $this->composerRequire($package);
+        $packages = array_unique($this->packages());
+        if (count($packages)) {
+            $this->composerRequire($packages);
         }
     }
 
     public function autoPackageRemove()
     {
-        $packages = $this->packages();
-        foreach($packages as $package) {
-            $this->composerRemove($package);
+        $packages = array_unique($this->packages());
+        if (count($packages)) {
+            $this->composerRemove($packages);
         }
     }
 }
