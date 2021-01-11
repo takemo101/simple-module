@@ -1,5 +1,6 @@
 # simple-module
 laravel simple module  
+now version : v0.1  
   
 ### 0. check  
 Added the following to composer.json  
