@@ -1,0 +1,38 @@
+<?php
+
+namespace {{ namespace }}\{{ name }};
+
+use Takemo101\SimpleModule\Support\ {
+    InstallerInterface,
+    ServiceProvider,
+};
+
+class {{ filename }} extends ServiceProvider implements InstallerInterface
+{
+    public function boot()
+    {
+        //
+    }
+
+    public function register()
+    {
+        //
+    }
+
+    public function install()
+    {
+        //
+    }
+
+    public function uninstall()
+    {
+        //
+    }
+
+    public function packages() : array
+    {
+        return [
+            // add composer packages
+        ];
+    }
+}
