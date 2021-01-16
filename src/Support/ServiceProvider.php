@@ -3,6 +3,7 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
+use Illuminate\Support\Arr;
 use ReflectionClass;
 
 class ServiceProvider extends LaravelServiceProvider
@@ -29,12 +30,15 @@ class ServiceProvider extends LaravelServiceProvider
     {
         return [
             // add composer packages
+            // 'package_name' => true or false
+            // true is require and remove
+            // false is require only
         ];
     }
 
     public function autoPackageRequire()
     {
-        $packages = array_unique($this->packages());
+        $packages = array_keys($this->packages());
         if (count($packages)) {
             $this->composerRequire($packages);
         }
@@ -42,7 +46,11 @@ class ServiceProvider extends LaravelServiceProvider
 
     public function autoPackageRemove()
     {
-        $packages = array_unique($this->packages());
+        $packages = Arr::where($this->packages(), function($v, $k) {
+            return $v;
+        });
+        $packages = array_keys($packages);
+
         if (count($packages)) {
             $this->composerRemove($packages);
         }

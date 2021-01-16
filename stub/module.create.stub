@@ -33,6 +33,9 @@ class {{ filename }} extends ServiceProvider implements InstallerInterface
     {
         return [
             // add composer packages
+            // 'package_name' => true or false
+            // true is require and remove
+            // false is require only
         ];
     }
 }
