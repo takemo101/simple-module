@@ -132,7 +132,7 @@ class Manager implements ManagerContract
     /**
      * return all module metas
      */
-    protected function modules() : array
+    public function modules() : array
     {
         return $this->modules;
     }

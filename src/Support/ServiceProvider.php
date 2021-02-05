@@ -4,6 +4,7 @@ namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Illuminate\Support\Arr;
+use Illuminate\Foundation\AliasLoader;
 use ReflectionClass;
 
 class ServiceProvider extends LaravelServiceProvider
@@ -14,6 +15,17 @@ class ServiceProvider extends LaravelServiceProvider
     {
         parent::__construct($app);
         $this->dir = dirname((new ReflectionClass(static::class))->getFileName());
+    }
+
+    protected function loadFacadesFrom(array $facades)
+    {
+        $loader = AliasLoader::getInstance();
+
+        foreach($facades as $class => $alias) {
+            $loader->alias($class, $alias);
+        }
+
+        return $this;
     }
 
     protected function composerRequire($package, array $options = [])
