@@ -145,6 +145,8 @@ class Manager implements ManagerContract
         extract($this->config);
 
         $modules = [];
+        $needDependencyNames = [];
+        $needDependencyModules = [];
 
         if ($this->files->isDirectory($directory)) {
             $directories = $this->files->directories($directory);
@@ -152,13 +154,44 @@ class Manager implements ManagerContract
                 $name = $this->files->name($dir);
 
                 if ($provider = $this->findModuleProvider($name, $filename, $namespace, $deny)) {
-                    $modules[$name] = new Meta($name, $provider, $dir, $this->files);
-                }
+                    $meta = new Meta($name, $provider, $dir, $this->files);
 
+                    if ($dependencyModule = $provider::dependencyModule()) {
+                        // not exists dependency module is continue
+                        if (!isset($modules[$dependencyModule])) {
+                            $needDependencyNames[$name] = $dependencyModule;
+                            $needDependencyModules[$name] = $meta;
+                            continue;
+                        }
+                    }
+                    $modules[$name] = $meta;
+                }
             }
+
+            $modules = $this->checkDependency($modules, $needDependencyNames, $needDependencyModules);
         }
 
         $this->modules = $modules;
+    }
+
+    /**
+     * check recursive dependency
+     */
+    protected function checkDependency(array $modules, array $needDependencyNames, array $needDependencyModules) : array
+    {
+        $count = 0;
+        foreach ($needDependencyNames as $name => $dependency) {
+            if (isset($modules[$dependency])) {
+                $modules[$name] = $needDependencyModules[$name];
+                unset($needDependencyNames[$name], $needDependencyModules[$name]);
+                $count++;
+            }
+        }
+        if ($count > 0) {
+            $modules = $this->checkDependency($modules, $needDependencyNames, $needDependencyModules);
+        }
+
+        return $modules;
     }
 
     /**

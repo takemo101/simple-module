@@ -9,6 +9,8 @@ use ReflectionClass;
 
 class ServiceProvider extends LaravelServiceProvider
 {
+    public static $dependencyModule = null; // dependency module name
+
     protected $dir;
 
     public function __construct($app)
@@ -76,5 +78,10 @@ class ServiceProvider extends LaravelServiceProvider
         $separator = DIRECTORY_SEPARATOR;
         $path = ltrim($path, $separator);
         return $path ? "{$this->dir}{$separator}{$path}" : $this->dir;
+    }
+
+    public static function dependencyModule() : ?string
+    {
+        return static::$dependencyModule;
     }
 }
