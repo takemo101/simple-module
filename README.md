@@ -1,9 +1,12 @@
 # simple-module
+
 laravel simple module  
-now version : v0.1.3  
-  
-### 0. check  
-Added the following to composer.json  
+now version : v0.1.8
+
+### 0. check
+
+Added the following to composer.json
+
 ```
     "autoload": {
         "psr-4": {
@@ -14,18 +17,25 @@ Added the following to composer.json
     },
     ...
 ```
-  
-### 1. publish  
+
+### 1. publish
+
 ```
 php artisan vendor:publish --provider="Takemo101\SimpleModule\SimpleModuleServiceProvider"
 ```
-  
-### 2. create module  
+
+### 2. create module
+
 ```
 php artisan simple-module:create ModuleName
+
+or
+
+php artisan simple-module:create ModuleName --namespace=SubModuleNamespace
 ```
-  
-### 3. module install  
+
+### 3. module install
+
 ```
 php artisan simple-module:install
 
@@ -33,8 +43,9 @@ or
 
 php artisan simple-module:install --module=ModuleName
 ```
-  
-### 4. module uninstall  
+
+### 4. module uninstall
+
 ```
 php artisan simple-module:uninstall
 

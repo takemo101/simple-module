@@ -3,6 +3,7 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
 
 class Creator
 {
@@ -21,9 +22,27 @@ class Creator
         }
     }
 
-    public function create(string $name)
+    /**
+     * create module file
+     *
+     * @param string $name
+     * @param null|string $targetNamespace
+     * @return void
+     */
+    public function create(string $name, ?string $targetNamespace = null)
     {
-        extract($this->config);
+        $directory = Arr::get($this->config, 'directory');
+        $filename = Arr::get($this->config, 'filename');
+        $namespace = Arr::get($this->config, 'namespace');
+        $deny = Arr::get($this->config, 'deny');
+        $namespaceDirectories = Arr::get($this->config, 'submodule', []);
+
+        $namespaceDirectories[$namespace] = $directory;
+
+        if ($targetNamespace && array_key_exists($targetNamespace, $namespaceDirectories)) {
+            $namespace = $targetNamespace;
+            $directory = $namespaceDirectories[$namespace];
+        }
 
         $stub = $this->files->get($this->stub);
 

@@ -12,7 +12,7 @@ class CreateModuleCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'simple-module:create {name}';
+    protected $signature = 'simple-module:create {name} {--namespace=}';
 
     /**
      * The console command description.
@@ -30,7 +30,9 @@ class CreateModuleCommand extends Command
     {
         $name = $this->argument('name');
 
-        $creator->create($name);
+        $namespace = $this->option('namespace');
+
+        $creator->create($name, $namespace);
 
         $this->info("successful [{$name}] simple-module creation");
     }
