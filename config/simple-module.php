@@ -24,4 +24,12 @@ return [
      * deny module classes
      */
     'deny' => [],
+
+    /**
+     * submodule
+     * namespace => directory
+     */
+    'submodule' => [
+        // 'SubModule' => base_path('submodule'),
+    ],
 ];
