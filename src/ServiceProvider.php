@@ -41,8 +41,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->publishes([
             "{$this->baseDirectory}/config/{$this->config}.php" => $this->app->configPath("{$this->config}.php"),
-            $this->config,
-        ]);
+        ], $this->config);
 
         // load modules
         /**
@@ -67,6 +66,7 @@ class ServiceProvider extends BaseServiceProvider
             return new Manager(
                 $app,
                 $app['simple-module.config'],
+                $app['simple-module.composer'],
                 $app['files']
             );
         });

@@ -3,6 +3,7 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Support\Composer as BaseComposer;
+use Symfony\Component\Process\Process;
 
 /**
  * execute composer comannd class
@@ -14,13 +15,13 @@ class Composer extends BaseComposer
      *
      * @param string[]|string $package
      * @param string[] $options
-     * @return void
+     * @return Process
      */
-    public function require(array|string $package, array $options = []): void
+    public function require(array|string $package, array $options = []): Process
     {
         $command = $this->createPackageCommand('require', $package);
         $command = array_merge($this->findComposer(), array_merge($command, $options));
-        $this->getProcess($command)->run();
+        return $this->getProcess($command);
     }
 
     /**
@@ -28,13 +29,13 @@ class Composer extends BaseComposer
      *
      * @param string[]|string $package
      * @param string[] $options
-     * @return void
+     * @return Process
      */
-    public function update(array|string $package, array $options = []): void
+    public function update(array|string $package, array $options = []): Process
     {
         $command = $this->createPackageCommand('update', $package);
         $command = array_merge($this->findComposer(), array_merge($command, $options));
-        $this->getProcess($command)->run();
+        return $this->getProcess($command);
     }
 
     /**
@@ -42,13 +43,13 @@ class Composer extends BaseComposer
      *
      * @param string[]|string $package
      * @param string[] $options
-     * @return void
+     * @return Process
      */
-    public function remove(array|string $package, array $options = []): void
+    public function remove(array|string $package, array $options = []): Process
     {
         $command = $this->createPackageCommand('remove', $package);
         $command = array_merge($this->findComposer(), array_merge($command, $options));
-        $this->getProcess($command)->run();
+        return $this->getProcess($command);
     }
 
     /**

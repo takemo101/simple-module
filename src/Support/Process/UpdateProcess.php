@@ -8,6 +8,7 @@ use Takemo101\SimpleModule\Support\{
     PackageCollection,
 };
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Process\Process;
 
 /**
  * execute update process
@@ -29,13 +30,23 @@ class UpdateProcess
      * execute uninstall process
      *
      * @param ServiceProvider $instance
-     * @return void
+     * @return string
      */
-    public function execute(ServiceProvider $instance): void
+    public function execute(ServiceProvider $instance): string
     {
+        $output = '';
+
         if ($instance instanceof ModuleServiceProvider) {
             $packages = PackageCollection::fromSetArray($instance->packages());
-            $this->composer->update($packages->toRequirePackageNames());
+            $packageNames = $packages->toRequirePackageNames();
+
+            if (count($packageNames)) {
+                $process = $this->composer->update($packageNames);
+                $process->run();
+                $output = $process->getOutput();
+            }
         }
+
+        return $output;
     }
 }

@@ -31,7 +31,9 @@ class InstallModuleCommand extends Command
         $module = $this->option('module');
         $module = is_array($module) ? $module[0] : $module;
 
-        $manager->install($module);
+        $output = $manager->install($module);
+
+        $this->line($output);
 
         $this->info("successful simple-module installed");
     }

@@ -9,6 +9,7 @@ use Takemo101\SimpleModule\Support\{
     PackageCollection,
 };
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Process\Process;
 
 /**
  * execute install process
@@ -30,17 +31,27 @@ class InstallProcess
      * execute install process
      *
      * @param ServiceProvider $instance
-     * @return void
+     * @return string
      */
-    public function execute(ServiceProvider $instance): void
+    public function execute(ServiceProvider $instance): string
     {
+        $output = '';
+
         if ($instance instanceof ModuleServiceProvider) {
             $packages = PackageCollection::fromSetArray($instance->packages());
-            $this->composer->require($packages->toRequirePackageNames());
+            $packageNames = $packages->toRequirePackageNames();
+
+            if (count($packageNames)) {
+                $process = $this->composer->require($packageNames);
+                $process->run();
+                $output = $process->getOutput();
+            }
         }
 
         if ($instance instanceof InstallerInterface) {
             $instance->install();
         }
+
+        return $output;
     }
 }

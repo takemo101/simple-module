@@ -42,11 +42,13 @@ final class Manager implements ManagerContract
      *
      * @param Application $app
      * @param ModuleConfig $config
+     * @param Composer $composer
      * @param Filesystem|null $files
      */
     public function __construct(
         private Application $app,
         private ModuleConfig $config,
+        private Composer $composer,
         ?Filesystem $files = null
     ) {
         $this->files = $files ?? new Filesystem;
@@ -116,12 +118,14 @@ final class Manager implements ManagerContract
     /**
      * module install
      *
-     * @return void
+     * @return string
      */
-    public function install(?string $name = null): void
+    public function install(?string $name = null): string
     {
+        $output = '';
+
         $installProcess = new InstallProcess(
-            $this->app['simple-module.composer'],
+            $this->composer,
         );
 
         $collection = MetaCollection::toNotInstalledCollection(
@@ -131,22 +135,27 @@ final class Manager implements ManagerContract
         $metas = $collection->iteratorByName($name);
 
         foreach ($metas as $meta) {
-            $installProcess->execute($this->resolveModuleProvider($meta));
+            $output .= "\n----- start [{$meta->name()}] update -----\n\n";
+            $output .= $installProcess->execute($this->resolveModuleProvider($meta));
 
             $meta->installed();
             $this->files->put($meta->installedPath(), 'installed');
         }
+
+        return $output;
     }
 
     /**
      * module update
      *
-     * @return void
+     * @return string
      */
-    public function update(?string $name = null): void
+    public function update(?string $name = null): string
     {
+        $output = '';
+
         $updateProcess = new UpdateProcess(
-            $this->app['simple-module.composer'],
+            $this->composer,
         );
 
         $collection = MetaCollection::toInstalledCollection(
@@ -156,19 +165,24 @@ final class Manager implements ManagerContract
         $metas = $collection->iteratorByName($name);
 
         foreach ($metas as $meta) {
-            $updateProcess->execute($this->resolveModuleProvider($meta));
+            $output .= "\n----- start [{$meta->name()}] update -----\n\n";
+            $output .= $updateProcess->execute($this->resolveModuleProvider($meta));
         }
+
+        return $output;
     }
 
     /**
      * module uninstall
      *
-     * @return void
+     * @return string
      */
-    public function uninstall(?string $name = null): void
+    public function uninstall(?string $name = null): string
     {
+        $output = '';
+
         $uninstallProcess = new UninstallProcess(
-            $this->app['simple-module.composer'],
+            $this->composer,
         );
 
         $collection = MetaCollection::toInstalledCollection(
@@ -178,11 +192,14 @@ final class Manager implements ManagerContract
         $metas = $collection->iteratorByName($name);
 
         foreach ($metas as $meta) {
-            $uninstallProcess->execute($this->resolveModuleProvider($meta));
+            $output .= "\n----- start [{$meta->name()}] uninstall -----\n\n";
+            $output .= $uninstallProcess->execute($this->resolveModuleProvider($meta));
 
             $meta->installed();
             $this->files->delete($meta->installedPath());
         }
+
+        return $output;
     }
 
     /**

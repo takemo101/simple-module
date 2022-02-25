@@ -31,7 +31,9 @@ class UninstallModuleCommand extends Command
         $module = $this->option('module');
         $module = is_array($module) ? $module[0] : $module;
 
-        $manager->uninstall($module);
+        $output = $manager->uninstall($module);
+
+        $this->line($output);
 
         $this->info("successful simple-module uninstalled");
     }

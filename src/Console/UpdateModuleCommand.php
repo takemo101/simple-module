@@ -31,7 +31,9 @@ class UpdateModuleCommand extends Command
         $module = $this->option('module');
         $module = is_array($module) ? $module[0] : $module;
 
-        $manager->update($module);
+        $output = $manager->update($module);
+
+        $this->line($output);
 
         $this->info("successful simple-module update");
     }
