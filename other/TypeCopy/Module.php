@@ -1,14 +1,19 @@
 <?php
 
-namespace {{ namespace }}\{{ name }};
+namespace Other\TypeCopy;
 
-use Takemo101\SimpleModule\Support\ {
+use Takemo101\SimpleModule\Support\{
     InstallerInterface,
     ServiceProvider,
 };
 
-class {{ classname }} extends ServiceProvider implements InstallerInterface
+class Module extends ServiceProvider implements InstallerInterface
 {
+    /**
+     * @var string|null
+     */
+    public static $dependencyModule = 'TypeSuper'; // dependency module name
+
     public function register()
     {
         //
@@ -40,7 +45,7 @@ class {{ classname }} extends ServiceProvider implements InstallerInterface
     }
 
     /**
-     * install packages
+     * package set
      *
      * [ 'package-name' => true or false ]
      * true is require and remove

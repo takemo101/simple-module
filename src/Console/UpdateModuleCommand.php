@@ -5,21 +5,21 @@ namespace Takemo101\SimpleModule\Console;
 use Illuminate\Console\Command;
 use Takemo101\SimpleModule\Support\ManagerInterface as Manager;
 
-class InstallModuleCommand extends Command
+class UpdateModuleCommand extends Command
 {
     /**
      * The console command signature.
      *
      * @var string
      */
-    protected $signature = 'simple-module:install {--module=}';
+    protected $signature = 'simple-module:update {--module=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'simple-module installed';
+    protected $description = 'simple-module update';
 
     /**
      * Execute the console command.
@@ -31,8 +31,8 @@ class InstallModuleCommand extends Command
         $module = $this->option('module');
         $module = is_array($module) ? $module[0] : $module;
 
-        $manager->install($module);
+        $manager->update($module);
 
-        $this->info("successful simple-module installed");
+        $this->info("successful simple-module update");
     }
 }

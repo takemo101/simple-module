@@ -3,7 +3,7 @@
 namespace Takemo101\SimpleModule\Console;
 
 use Illuminate\Console\Command;
-use Takemo101\SimpleModule\Support\ManagerContract as Manager;
+use Takemo101\SimpleModule\Support\ManagerInterface as Manager;
 
 class UninstallModuleCommand extends Command
 {
@@ -29,7 +29,10 @@ class UninstallModuleCommand extends Command
     public function handle(Manager $manager)
     {
         $module = $this->option('module');
+        $module = is_array($module) ? $module[0] : $module;
+
         $manager->uninstall($module);
+
         $this->info("successful simple-module uninstalled");
     }
 }

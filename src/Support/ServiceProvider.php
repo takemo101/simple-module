@@ -3,44 +3,63 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
-use Illuminate\Support\Arr;
 use Illuminate\Foundation\AliasLoader;
 use ReflectionClass;
 
+/**
+ * module service provider class
+ */
 class ServiceProvider extends LaravelServiceProvider
 {
+    /**
+     * @var string|null
+     */
     public static $dependencyModule = null; // dependency module name
 
-    protected $dir;
+    /**
+     * @var string
+     */
+    protected $baseDirectory;
 
+    /**
+     * Create a new service provider instance.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
+     */
     public function __construct($app)
     {
         parent::__construct($app);
-        $this->dir = dirname((new ReflectionClass(static::class))->getFileName());
+        $this->baseDirectory = dirname((string)(new ReflectionClass(static::class))->getFileName());
     }
 
-    protected function loadFacadesFrom(array $facades)
+    /**
+     * load facades
+     *
+     * @param string[] $facades
+     * @return self
+     */
+    protected function loadFacadesFrom(array $facades): self
     {
         $loader = AliasLoader::getInstance();
 
-        foreach($facades as $class => $alias) {
+        foreach ($facades as $class => $alias) {
             $loader->alias($class, $alias);
         }
 
         return $this;
     }
 
-    protected function composerRequire($package, array $options = [])
-    {
-        $this->app['simple-module.composer']->require($package, $options);
-    }
-
-    protected function composerRemove($package, array $options = [])
-    {
-        $this->app['simple-module.composer']->remove($package);
-    }
-
-    public function packages() : array
+    /**
+     * package set
+     *
+     * [ 'package-name' => true or false ]
+     * true is require and remove
+     * false is require only
+     *
+     * @return boolean[]
+     */
+    public function packages(): array
     {
         return [
             // add composer packages
@@ -50,37 +69,30 @@ class ServiceProvider extends LaravelServiceProvider
         ];
     }
 
-    public function autoPackageRequire()
+    /**
+     * get module path
+     *
+     * @param string ...$paths
+     * @return string
+     */
+    public function path(string ...$paths): string
     {
-        $packages = array_keys($this->packages());
-        if (count($packages)) {
-            $this->composerRequire($packages);
-        }
-    }
+        $separator = DIRECTORY_SEPARATOR;
 
-    public function autoPackageRemove()
-    {
-        $packages = Arr::where($this->packages(), function($v, $k) {
-            return $v;
-        });
-        $packages = array_keys($packages);
-
-        if (count($packages)) {
-            $this->composerRemove($packages);
-        }
+        return implode($separator, [
+            $this->baseDirectory,
+            ...array_filter(
+                array_map(fn (string $p): string => trim($p, $separator), $paths)
+            ),
+        ]);
     }
 
     /**
-     * return module path
+     * get dependency module
+     *
+     * @return string|null
      */
-    public function path(string $path = '')
-    {
-        $separator = DIRECTORY_SEPARATOR;
-        $path = ltrim($path, $separator);
-        return $path ? "{$this->dir}{$separator}{$path}" : $this->dir;
-    }
-
-    public static function dependencyModule() : ?string
+    public static function dependencyModule(): ?string
     {
         return static::$dependencyModule;
     }
