@@ -1,6 +1,6 @@
 # The Simple Module For Laravel
 
-A very simple modular system for Laravel.
+A very simple modular system for Laravel.  
 Enjoy!  
 
 ## Installation
