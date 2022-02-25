@@ -1,2 +1,15 @@
-/memo
-/vendor
+# for composer
+composer.phar
+composer.lock
+/vendor/
+/document/
+/module/*
+
+# for phpunit
+.phpunit.result.cache
+
+# keep directory
+!.gitkeep
+
+# package
+/app/

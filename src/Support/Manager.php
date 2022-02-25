@@ -3,286 +3,210 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Foundation\ProviderRepository;
-use Illuminate\Support\{
-    Arr,
-    ServiceProvider as LaravelServiceProvider,
-};
+use Illuminate\Foundation\Application;
+use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Illuminate\Filesystem\Filesystem;
+use Takemo101\SimpleModule\Support\Process\{
+    InstallProcess,
+    UninstallProcess,
+    UpdateProcess,
+};
 
-class Manager implements ManagerContract
+/**
+ * module manager class
+ */
+final class Manager implements ManagerContract
 {
-    protected $app;
-    protected $config;
-    protected $files;
+    /**
+     * @var Filesystem
+     */
+    private Filesystem $files;
 
-    protected $modules = [];
-    protected $isLoaded = false;
+    /**
+     * @var MetaLoader
+     */
+    private MetaLoader $loader;
 
-    public function __construct($app, array $config = [], ?Filesystem $files = null)
-    {
-        $this->app = $app;
-        $this->config = $config;
+    /**
+     * @var MetaCollection|null
+     */
+    private $metaCollection = null;
+
+    /**
+     * @var boolean
+     */
+    private $loaded = false;
+
+    /**
+     * constructor
+     *
+     * @param Application $app
+     * @param ModuleConfig $config
+     * @param Composer $composer
+     * @param Filesystem|null $files
+     */
+    public function __construct(
+        private Application $app,
+        private ModuleConfig $config,
+        private Composer $composer,
+        ?Filesystem $files = null
+    ) {
         $this->files = $files ?? new Filesystem;
 
-        $this->loadModule();
+        $this->loader = new MetaLoader(
+            $this->config,
+            $this->files,
+        );
     }
 
     /**
      * module provider load
+     *
+     * @return void
      */
-    public function load()
+    public function load(): void
     {
-        if ($this->isLoaded()) {
+        if ($this->loaded) {
             return;
         }
 
-        $providers = $this->installedModuleProviders();
+        $providers = MetaCollection::toInstalledCollection(
+            $this->getMetaData(),
+        )->getProviders();
 
         if (count($providers)) {
-            (new ProviderRepository($this->app, $this->files, $this->cachedPath()))->load($providers);
+            (new ProviderRepository($this->app, $this->files, $this->getCachePath()))->load($providers);
         }
 
-        $this->isLoaded = true;
+        $this->loaded = true;
     }
 
     /**
-     * return cache path
+     * get cache path
+     *
+     * @return string
      */
-    public function cachedPath(): string
+    private function getCachePath(): string
     {
-        return $this->app->bootstrapPath(Arr::get($this->config, 'cache_path', 'cache/modules.php'));
+        return $this->app->bootstrapPath($this->config->getCachePath());
     }
 
     /**
-     * is load
+     * get module meta collection
+     *
+     * @return MetaCollection
      */
-    public function isLoaded(): bool
+    public function getMetaData(): MetaCollection
     {
-        return $this->isLoaded;
-    }
-
-    /**
-     * return installed module metas
-     */
-    protected function installedModules(): array
-    {
-        $modules = $this->modules();
-
-        $result = [];
-        foreach ($modules as $name => $module) {
-            if ($module->isInstalled()) {
-                $result[$name] = $module;
-            }
+        if (!$this->metaCollection) {
+            $this->metaCollection = $this->loader->load();
         }
 
-        return $result;
+        return $this->metaCollection;
     }
 
     /**
-     * return uninstalled module metas
-     */
-    protected function uninstalledModules(): array
-    {
-        $modules = $this->modules();
-
-        $result = [];
-        foreach ($modules as $name => $module) {
-            if (!$module->isInstalled()) {
-                $result[$name] = $module;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * return installed module provider class names
-     */
-    protected function installedModuleProviders(): array
-    {
-        $modules = $this->modules();
-
-        $result = [];
-        foreach ($modules as $name => $module) {
-            if ($module->isInstalled()) {
-                $result[$name] = $module->provider();
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * return uninstalled module provider class names
-     */
-    protected function uninstalledModuleProviders(): array
-    {
-        $modules = $this->modules();
-
-        $result = [];
-        foreach ($modules as $name => $module) {
-            if (!$module->isInstalled()) {
-                $result[$name] = $module->provider();
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * return all module metas
+     * get module meta dto array
+     *
+     * @return MetaDTO[]
      */
     public function modules(): array
     {
-        return $this->modules;
-    }
-
-    /**
-     * load module metas
-     */
-    protected function loadModule()
-    {
-        $directory = Arr::get($this->config, 'directory');
-        $filename = Arr::get($this->config, 'filename');
-        $namespace = Arr::get($this->config, 'namespace');
-        $deny = Arr::get($this->config, 'deny');
-        $namespaceDirectories = Arr::get($this->config, 'submodule', []);
-
-        $namespaceDirectories[$namespace] = $directory;
-
-        $modules = [];
-        $needDependencyNames = [];
-        $needDependencyModules = [];
-
-        foreach ($namespaceDirectories as $namespace => $directory) {
-            if ($this->files->isDirectory($directory)) {
-                $directories = $this->files->directories($directory);
-                foreach ($directories as $dir) {
-                    $name = $this->files->name($dir);
-
-                    if ($provider = $this->findModuleProvider($name, $filename, $namespace, $deny)) {
-                        $meta = new Meta($name, $provider, $dir, $this->files);
-
-                        if ($dependencyModule = $provider::dependencyModule()) {
-                            // not exists dependency module is continue
-                            if (!isset($modules[$dependencyModule])) {
-                                $needDependencyNames[$name] = $dependencyModule;
-                                $needDependencyModules[$name] = $meta;
-                                continue;
-                            }
-                        }
-                        $modules[$name] = $meta;
-                    }
-                }
-
-                $modules = $this->checkDependency($modules, $needDependencyNames, $needDependencyModules);
-            }
-        }
-
-        $this->modules = $modules;
-    }
-
-    /**
-     * check recursive dependency
-     */
-    protected function checkDependency(array $modules, array $needDependencyNames, array $needDependencyModules): array
-    {
-        $count = 0;
-        foreach ($needDependencyNames as $name => $dependency) {
-            if (isset($modules[$dependency])) {
-                $modules[$name] = $needDependencyModules[$name];
-                unset($needDependencyNames[$name], $needDependencyModules[$name]);
-                $count++;
-            }
-        }
-        if ($count > 0) {
-            $modules = $this->checkDependency($modules, $needDependencyNames, $needDependencyModules);
-        }
-
-        return $modules;
-    }
-
-    /**
-     * find module provider and create module meta
-     */
-    protected function findModuleProvider(string $name, string $filename, string $namespace, array $deny = []): ?string
-    {
-        $provider = $this->createModuleProviderClassName($name, $filename, $namespace);
-
-        if (class_exists($provider)) {
-            if (!in_array($provider, $deny)) {
-                return $provider;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * create module provider class name
-     */
-    protected function createModuleProviderClassName(string $name, string $filename, string $namespace)
-    {
-        return implode('\\', [$namespace, $name, $filename]);
+        return $this->getMetaData()->toMetaDTOs();
     }
 
     /**
      * module install
+     *
+     * @return string
      */
-    public function install(?string $name = null)
+    public function install(?string $name = null): string
     {
-        $modules = $this->uninstalledModules();
+        $output = '';
 
-        if ($name) {
-            $modules = isset($modules[$name]) ? [$modules[$name]] : [];
+        $installProcess = new InstallProcess(
+            $this->composer,
+        );
+
+        $collection = MetaCollection::toNotInstalledCollection(
+            $this->getMetaData(),
+        );
+
+        $metas = $collection->iteratorByName($name);
+
+        foreach ($metas as $meta) {
+            $output .= "\n----- start [{$meta->name()}] update -----\n\n";
+            $output .= $installProcess->execute($this->resolveModuleProvider($meta));
+
+            $meta->installed();
+            $this->files->put($meta->installedPath(), 'installed');
         }
 
-        foreach ($modules as $module) {
-            $instance = $this->resolveModuleProvider($module);
+        return $output;
+    }
 
-            if ($instance instanceof ServiceProvider) {
-                $instance->autoPackageRequire();
-            }
-            if ($instance instanceof InstallerInterface) {
-                $instance->install();
-            }
+    /**
+     * module update
+     *
+     * @return string
+     */
+    public function update(?string $name = null): string
+    {
+        $output = '';
 
-            $module->installed();
+        $updateProcess = new UpdateProcess(
+            $this->composer,
+        );
+
+        $collection = MetaCollection::toInstalledCollection(
+            $this->getMetaData(),
+        );
+
+        $metas = $collection->iteratorByName($name);
+
+        foreach ($metas as $meta) {
+            $output .= "\n----- start [{$meta->name()}] update -----\n\n";
+            $output .= $updateProcess->execute($this->resolveModuleProvider($meta));
         }
+
+        return $output;
     }
 
     /**
      * module uninstall
+     *
+     * @return string
      */
-    public function uninstall(?string $name = null)
+    public function uninstall(?string $name = null): string
     {
-        $modules = $this->installedModules();
+        $output = '';
 
-        if ($name) {
-            $modules = isset($modules[$name]) ? [$modules[$name]] : [];
+        $uninstallProcess = new UninstallProcess(
+            $this->composer,
+        );
+
+        $collection = MetaCollection::toInstalledCollection(
+            $this->getMetaData(),
+        );
+
+        $metas = $collection->iteratorByName($name);
+
+        foreach ($metas as $meta) {
+            $output .= "\n----- start [{$meta->name()}] uninstall -----\n\n";
+            $output .= $uninstallProcess->execute($this->resolveModuleProvider($meta));
+
+            $meta->installed();
+            $this->files->delete($meta->installedPath());
         }
 
-        foreach ($modules as $module) {
-            $instance = $this->resolveModuleProvider($module);
-
-            if ($instance instanceof InstallerInterface) {
-                $instance->uninstall();
-            }
-            if ($instance instanceof ServiceProvider) {
-                $instance->autoPackageRemove();
-            }
-
-            $module->uninstalled();
-        }
+        return $output;
     }
 
     /**
      * resolve module provider instance by module meta
      */
-    protected function resolveModuleProvider(Meta $module): LaravelServiceProvider
+    protected function resolveModuleProvider(Meta $meta): LaravelServiceProvider
     {
-        $provider = $module->provider();
-        $providers = $this->app->getLoadedProviders();
-        return $this->app->register($provider);
+        return $this->app->register($meta->provider());
     }
 }

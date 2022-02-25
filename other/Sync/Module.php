@@ -1,13 +1,13 @@
 <?php
 
-namespace {{ namespace }}\{{ name }};
+namespace Other\Sync;
 
 use Takemo101\SimpleModule\Support\ {
     InstallerInterface,
     ServiceProvider,
 };
 
-class {{ classname }} extends ServiceProvider implements InstallerInterface
+class Module extends ServiceProvider implements InstallerInterface
 {
     public function register()
     {
@@ -40,7 +40,7 @@ class {{ classname }} extends ServiceProvider implements InstallerInterface
     }
 
     /**
-     * install packages
+     * package set
      *
      * [ 'package-name' => true or false ]
      * true is require and remove

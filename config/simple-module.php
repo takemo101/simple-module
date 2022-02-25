@@ -6,30 +6,30 @@ return [
     'directory' => base_path('module'),
 
     /**
-     * module provider filename
-     */
-    'filename' => 'Module',
-
-    /**
      * module namespace
      */
     'namespace' => 'Module',
 
     /**
-     * module provider cache_path
+     * module provider filename (classname)
      */
-    'cache_path' => 'cache/modules.php',
+    'classname' => 'Module',
 
     /**
-     * deny module classes
+     * module provider cache path
      */
-    'deny' => [],
+    'cache' => 'cache/module-cache.php',
 
     /**
-     * submodule
-     * namespace => directory
+     * denies (deny) module classes
      */
-    'submodule' => [
-        // 'SubModule' => base_path('submodule'),
+    'denies' => [],
+
+    /**
+     * modules (submodule)
+     * [ 'namespace' => 'directory' ]
+     */
+    'modules' => [
+        // 'OtherModule' => base_path('submodule'),
     ],
 ];

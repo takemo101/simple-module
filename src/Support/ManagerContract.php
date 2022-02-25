@@ -2,30 +2,39 @@
 
 namespace Takemo101\SimpleModule\Support;
 
+/**
+ * module manager interface
+ */
 interface ManagerContract
 {
     /**
-     * load Module Provider
+     * module provider load
+     *
+     * @return void
      */
-    public function load();
-
-    /**
-     * return cache path
-     */
-    public function cachedPath() : string;
-
-    /**
-     * is load
-     */
-    public function isLoaded() : bool;
+    public function load(): void;
 
     /**
      * module install
+     *
+     * @param string|null $name
+     * @return string
      */
-    public function install(?string $name = null);
+    public function install(?string $name = null): string;
+
+    /**
+     * module update
+     *
+     * @param string|null $name
+     * @return string
+     */
+    public function update(?string $name = null): string;
 
     /**
      * module uninstall
+     *
+     * @param string|null $name
+     * @return string
      */
-    public function uninstall(?string $name = null);
+    public function uninstall(?string $name = null): string;
 }

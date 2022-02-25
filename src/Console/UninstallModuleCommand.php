@@ -29,7 +29,12 @@ class UninstallModuleCommand extends Command
     public function handle(Manager $manager)
     {
         $module = $this->option('module');
-        $manager->uninstall($module);
+        $module = is_array($module) ? $module[0] : $module;
+
+        $output = $manager->uninstall($module);
+
+        $this->line($output);
+
         $this->info("successful simple-module uninstalled");
     }
 }

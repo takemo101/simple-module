@@ -29,8 +29,10 @@ class CreateModuleCommand extends Command
     public function handle(Creator $creator)
     {
         $name = $this->argument('name');
+        $name = is_array($name) ? $name[0] : (string)$name;
 
         $namespace = $this->option('namespace');
+        $namespace = is_array($namespace) ? $namespace[0] : $namespace;
 
         $creator->create($name, $namespace);
 

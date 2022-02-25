@@ -3,50 +3,70 @@
 namespace Takemo101\SimpleModule\Support;
 
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
+use InvalidArgumentException;
 
-class Creator
+/**
+ * stub create class
+ */
+final class Creator
 {
-    protected $stub;
-    protected $config;
-    protected $files;
+    /**
+     * @var string
+     */
+    private string $stubPath;
 
-    public function __construct(string $stub, array $config = [], ?Filesystem $files = null)
+    /**
+     * @var ModuleConfig
+     */
+    private $config;
+
+    /**
+     * @var Filesystem
+     */
+    private $files;
+
+    /**
+     * constructor
+     *
+     * @param string $stubPath
+     * @param ModuleConfig $config
+     * @param Filesystem|null $files
+     * @throws InvalidArgumentException
+     */
+    public function __construct(string $stubPath, ModuleConfig $config, ?Filesystem $files = null)
     {
-        $this->stub = $stub;
-        $this->config = $config;
         $this->files = $files ?? new Filesystem;
 
-        if (!$this->files->exists($this->stub)) {
-            throw new \Exception("[{$this->stub}] file not found");
+        if (!$this->files->exists($stubPath)) {
+            throw new InvalidArgumentException("file not found error: stub path is [{$stubPath}]");
         }
+
+        $this->stubPath = $stubPath;
+        $this->config = $config;
     }
 
     /**
      * create module file
      *
      * @param string $name
-     * @param null|string $targetNamespace
-     * @return void
+     * @param null|string $target
+     * @return string
      */
-    public function create(string $name, ?string $targetNamespace = null)
+    public function create(string $name, ?string $target = null): string
     {
-        $directory = Arr::get($this->config, 'directory');
-        $filename = Arr::get($this->config, 'filename');
-        $namespace = Arr::get($this->config, 'namespace');
-        $deny = Arr::get($this->config, 'deny');
-        $namespaceDirectories = Arr::get($this->config, 'submodule', []);
+        $position = $this->config->getPosition();
+        $classname = $this->config->getClassName();
 
-        $namespaceDirectories[$namespace] = $directory;
-
-        if ($targetNamespace && array_key_exists($targetNamespace, $namespaceDirectories)) {
-            $namespace = $targetNamespace;
-            $directory = $namespaceDirectories[$namespace];
+        if ($target) {
+            if ($position = $this->config->getPositions()->findByNamespace($target)) {
+                $position = $position;
+            }
         }
 
-        $stub = $this->files->get($this->stub);
+        $namespace = $position->getNamespace();
+        $stub = $this->files->get($this->stubPath);
 
-        foreach (compact('filename', 'namespace', 'name') as $key => $value) {
+        foreach (compact('classname', 'namespace', 'name') as $key => $value) {
             $stub = str_replace(
                 ['{{ ' . $key . ' }}', '{{' . $key . '}}'],
                 $value,
@@ -54,11 +74,10 @@ class Creator
             );
         }
 
-        $sperator = DIRECTORY_SEPARATOR;
-        $dirPath = "{$directory}{$sperator}{$name}";
-        $filePath = "{$dirPath}{$sperator}{$filename}.php";
+        $directory = $position->getPath($name);
+        $filePath = $position->getPath($name, "{$classname}.php");
 
-        $this->files->makeDirectory($dirPath, 0755, true);
+        $this->files->ensureDirectoryExists($directory, 0755, true);
         $this->files->put($filePath, $stub);
 
         return $filePath;

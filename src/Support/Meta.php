@@ -2,77 +2,100 @@
 
 namespace Takemo101\SimpleModule\Support;
 
-use Illuminate\Filesystem\Filesystem;
-
-class Meta
+/**
+ * module meta class
+ */
+final class Meta
 {
-    const INSTALLED_FILENAME = 'installed';
+    /**
+     * @var string
+     */
+    const InstalledFilename = 'installed';
 
-    protected $name, $provider, $directory;
-    protected $files;
-
-    public function __construct(string $name, string $provider, string $directory, Filesystem $files)
-    {
-        $this->name = $name;
-        $this->provider = $provider;
-        $this->directory = $directory;
-        $this->files = $files;
+    /**
+     * constructor
+     *
+     * @param ModuleClassPosition $classPosition
+     * @param boolean $installed
+     */
+    public function __construct(
+        private ModuleClassPosition $classPosition,
+        private bool $installed,
+    ) {
+        //
     }
 
     /**
-     * return module name
+     * get module name
+     *
+     * @return string
      */
-    public function name() : string
+    public function name(): string
     {
-        return $this->name;
+        return $this->classPosition->getName();
     }
 
     /**
      * return module provider class name
+     *
+     * @return string
      */
-    public function provider() : string
+    public function provider(): string
     {
-        return $this->provider;
+        return $this->classPosition->getProviderClassName();
     }
 
     /**
      * return module directory path
+     *
+     * @return string
      */
-    public function directory()
+    public function directory(string ...$directories): string
     {
-        return $this->directory;
+        return $this->classPosition->getPath(...$directories);
     }
 
     /**
      * return installed file path
+     *
+     * @return string
      */
-    public function installedPath()
+    public function installedPath(): string
     {
-        return $this->directory . DIRECTORY_SEPARATOR . self::INSTALLED_FILENAME;
-    }
-
-
-    /**
-     * exists installed file
-     */
-    public function isInstalled() : bool
-    {
-        return $this->files->exists($this->installedPath());
+        return $this->directory(self::InstalledFilename);
     }
 
     /**
-     * put installed file
+     * change installed
+     *
+     * @return self
      */
-    public function installed()
+    public function installed(): self
     {
-        $this->files->put($this->installedPath(), 'installed');
+        $this->installed = true;
+
+        return $this;
     }
 
     /**
-     * delete installed file
+     * change uninstalled
+     *
+     * @return self
      */
-    public function uninstalled()
+    public function uninstalled(): self
     {
-        $this->files->delete($this->installedPath());
+        $this->installed = false;
+
+        return $this;
+    }
+
+    /**
+     * is installed
+     *
+     * @return boolean
+     */
+    public function isInstalled(): bool
+    {
+        return $this->installed;
     }
 }

@@ -1,12 +1,24 @@
-# simple-module
+# The Simple Module For Laravel
 
-laravel simple module  
-now version : v0.1.8
+A very simple modular system for Laravel.  
+Enjoy!  
 
-### 0. check
+## Installation
+Execute the following composer command.
 
-Added the following to composer.json
+```
+composer require takemo101/simple-module
+```
 
+## Publish the config
+Publish the config with the following artisan command.
+```
+php artisan vendor:publish --tag="simple-module"
+```
+
+## About　composer.json
+Create a'module' directory in the directory where composer.json is located.  
+Then set the path of the directory you added to composer.json.  
 ```
     "autoload": {
         "psr-4": {
@@ -18,24 +30,21 @@ Added the following to composer.json
     ...
 ```
 
-### 1. publish
+## How to use
+You can execute the command as below.
 
-```
-php artisan vendor:publish --provider="Takemo101\SimpleModule\SimpleModuleServiceProvider"
-```
-
-### 2. create module
-
+### 1. Create a module
+Create a module file in the module directory
 ```
 php artisan simple-module:create ModuleName
 
 or
 
-php artisan simple-module:create ModuleName --namespace=SubModuleNamespace
+php artisan simple-module:create ModuleName --namespace=OtherModuleNamespace
 ```
 
-### 3. module install
-
+### 2. module install
+Execute the process of the install method of Module.php of the created module file.
 ```
 php artisan simple-module:install
 
@@ -44,12 +53,77 @@ or
 php artisan simple-module:install --module=ModuleName
 ```
 
-### 4. module uninstall
-
+### 3. module uninstall
+Execute the process of uninstall method of Module.php of the created module file.
 ```
 php artisan simple-module:uninstall
 
 or
 
 php artisan simple-module:uninstall --module=ModuleName
+```
+
+## How to set the module file
+The following is a setting example of Module.php.
+```
+<?php
+
+namespace Other\Sync;
+
+use Takemo101\SimpleModule\Support\ {
+    InstallerInterface,
+    ServiceProvider,
+};
+
+/**
+ * Module files are Laravel's service provider, so you can use them in the same way.
+ */
+class Module extends ServiceProvider implements InstallerInterface
+{
+    public function register()
+    {
+        //
+    }
+
+    public function boot()
+    {
+        //
+    }
+
+    /**
+     * module install process
+     *
+     * @return void
+     */
+    public function install()
+    {
+        // Write the process when installing the module.
+    }
+
+    /**
+     * module uninstall process
+     *
+     * @return void
+     */
+    public function uninstall()
+    {
+        // Write the process when uninstalling the module.
+    }
+
+    /**
+     * install packages
+     *
+     * Set the package string to the key of the associative array.
+     * For the value of the associative array, set whether to uninstall or not with boolean type.
+     *
+     * @return boolean[]
+     */
+    public function packages(): array
+    {
+        return [
+            'bensampo/laravel-enum' => true, // It is deleted at the same time as uninstalling
+            'jeroennoten/laravel-adminlte' => false, // Not deleted even if uninstalled
+        ];
+    }
+}
 ```

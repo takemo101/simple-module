@@ -1,33 +1,51 @@
 {
     "name": "takemo101/simple-module",
-    "description": "SimpleModule for Laravel",
+    "description": "Laravel Simple Module",
     "keywords": [
+        "php",
+        "package",
         "laravel",
         "module"
     ],
-    "authors": [{
-        "name": "takemo101",
-        "email": "takemo101@gmail.com",
-        "role": "Developer"
-    }],
+    "authors": [
+        {
+            "name": "takemo101",
+            "email": "takemo101@gmail.com",
+            "role": "Developer"
+        }
+    ],
     "homepage": "https://github.com/takemo101/simple-module",
     "license": "MIT",
     "require": {
         "php": ">=7.3.0",
-        "laravel/framework": "^7.0|^8.0"
+        "illuminate/support": "^8|^9",
+        "illuminate/filesystem": "^8|^9",
+        "illuminate/console": "^8|^9"
     },
     "autoload": {
         "psr-4": {
             "Takemo101\\SimpleModule\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "test/",
+            "Module\\": "module/",
+            "Other\\": "other/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
-                "Takemo101\\SimpleModule\\SimpleModuleServiceProvider"
+                "Takemo101\\SimpleModule\\ServiceProvider"
             ]
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "php": "^8.0",
+        "phpunit/phpunit": "^9.5",
+        "orchestra/testbench": "^7.0"
+    }
 }

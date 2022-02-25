@@ -5,12 +5,16 @@ namespace Takemo101\SimpleModule\Support;
 interface InstallerInterface
 {
     /**
-     * module provider install
+     * module install process
+     *
+     * @return void
      */
     public function install();
 
     /**
-     * module provider uninstall
+     * module uninstall process
+     *
+     * @return void
      */
     public function uninstall();
 }
