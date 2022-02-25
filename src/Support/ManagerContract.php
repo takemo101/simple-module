@@ -5,7 +5,7 @@ namespace Takemo101\SimpleModule\Support;
 /**
  * module manager interface
  */
-interface ManagerInterface
+interface ManagerContract
 {
     /**
      * module provider load

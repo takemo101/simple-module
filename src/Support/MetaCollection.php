@@ -82,6 +82,25 @@ final class MetaCollection
     }
 
     /**
+     * to meta dto array
+     *
+     * @return MetaDTO[]
+     */
+    public function toMetaDTOs(): array
+    {
+        $result = [];
+        foreach ($this->collection as $meta) {
+            $result[] = new MetaDTO(
+                $meta->name(),
+                $meta->directory(),
+                $meta->isInstalled(),
+            );
+        }
+
+        return $result;
+    }
+
+    /**
      * get meta providers
      *
      * @return string[]

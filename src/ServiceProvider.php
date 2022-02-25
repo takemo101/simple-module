@@ -4,7 +4,7 @@ namespace Takemo101\SimpleModule;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Takemo101\SimpleModule\Support\{
-    ManagerInterface,
+    ManagerContract,
     Manager,
     ModuleConfig,
     Creator,
@@ -46,7 +46,7 @@ class ServiceProvider extends BaseServiceProvider
 
         // load modules
         /**
-         * @var ManagerInterface
+         * @var ManagerContract
          */
         $manager = $this->app['simple-module.manager'];
         $manager->load();
@@ -84,7 +84,7 @@ class ServiceProvider extends BaseServiceProvider
         });
 
         foreach ([
-            'simple-module.manager' => ManagerInterface::class,
+            'simple-module.manager' => ManagerContract::class,
             'simple-module.creator' => Creator::class,
         ] as $key => $alias) {
             $this->app->alias($key, $alias);

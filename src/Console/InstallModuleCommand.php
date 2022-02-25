@@ -3,7 +3,7 @@
 namespace Takemo101\SimpleModule\Console;
 
 use Illuminate\Console\Command;
-use Takemo101\SimpleModule\Support\ManagerInterface as Manager;
+use Takemo101\SimpleModule\Support\ManagerContract as Manager;
 
 class InstallModuleCommand extends Command
 {

@@ -3,7 +3,7 @@
 namespace Test;
 
 use Takemo101\SimpleModule\Support\{
-    ManagerInterface,
+    ManagerContract,
     Manager,
     MetaCollection,
 };
@@ -19,8 +19,8 @@ class ManagerTest extends TestCase
         /**
          * @var Manager
          */
-        $manager = $this->app[ManagerInterface::class];
-        $collection = $manager->getModules();
+        $manager = $this->app[ManagerContract::class];
+        $collection = $manager->getMetaData();
 
         $metas = $collection->iteratorByName();
 
@@ -35,5 +35,19 @@ class ManagerTest extends TestCase
         $metas = $notInstalledCollection->iteratorByName();
 
         $this->assertEquals(count($metas), 1);
+    }
+
+    /**
+     * @test
+     */
+    public function getMetaDTOs__OK(): void
+    {
+        /**
+         * @var Manager
+         */
+        $manager = $this->app[ManagerContract::class];
+        $metadtos = $manager->modules();
+
+        $this->assertEquals(count($metadtos), 2);
     }
 }

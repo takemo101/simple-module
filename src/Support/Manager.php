@@ -15,7 +15,7 @@ use Takemo101\SimpleModule\Support\Process\{
 /**
  * module manager class
  */
-final class Manager implements ManagerInterface
+final class Manager implements ManagerContract
 {
     /**
      * @var Filesystem
@@ -30,7 +30,7 @@ final class Manager implements ManagerInterface
     /**
      * @var MetaCollection|null
      */
-    private $modules = null;
+    private $metaCollection = null;
 
     /**
      * @var boolean
@@ -69,7 +69,7 @@ final class Manager implements ManagerInterface
         }
 
         $providers = MetaCollection::toInstalledCollection(
-            $this->getModules(),
+            $this->getMetaData(),
         )->getProviders();
 
         if (count($providers)) {
@@ -94,13 +94,23 @@ final class Manager implements ManagerInterface
      *
      * @return MetaCollection
      */
-    public function getModules(): MetaCollection
+    public function getMetaData(): MetaCollection
     {
-        if (!$this->modules) {
-            $this->modules = $this->loader->load();
+        if (!$this->metaCollection) {
+            $this->metaCollection = $this->loader->load();
         }
 
-        return $this->modules;
+        return $this->metaCollection;
+    }
+
+    /**
+     * get module meta dto array
+     *
+     * @return MetaDTO[]
+     */
+    public function modules(): array
+    {
+        return $this->getMetaData()->toMetaDTOs();
     }
 
     /**
@@ -115,7 +125,7 @@ final class Manager implements ManagerInterface
         );
 
         $collection = MetaCollection::toNotInstalledCollection(
-            $this->getModules(),
+            $this->getMetaData(),
         );
 
         $metas = $collection->iteratorByName($name);
@@ -140,7 +150,7 @@ final class Manager implements ManagerInterface
         );
 
         $collection = MetaCollection::toInstalledCollection(
-            $this->getModules(),
+            $this->getMetaData(),
         );
 
         $metas = $collection->iteratorByName($name);
@@ -162,7 +172,7 @@ final class Manager implements ManagerInterface
         );
 
         $collection = MetaCollection::toInstalledCollection(
-            $this->getModules(),
+            $this->getMetaData(),
         );
 
         $metas = $collection->iteratorByName($name);
