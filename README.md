@@ -19,7 +19,7 @@ php artisan vendor:publish --tag="simple-module"
 ## About　composer.json
 Create a'module' directory in the directory where composer.json is located.  
 Then set the path of the directory you added to composer.json.  
-```
+```json
     "autoload": {
         "psr-4": {
             "App\\": "app/",
@@ -63,9 +63,19 @@ or
 php artisan simple-module:uninstall --module=ModuleName
 ```
 
+### 4. module update
+Only update the dependent packages of the created module file.
+```
+php artisan simple-module:update
+
+or
+
+php artisan simple-module:update --module=ModuleName
+```
+
 ## How to set the module file
 The following is a setting example of Module.php.
-```
+```php
 <?php
 
 namespace Other\Sync;
