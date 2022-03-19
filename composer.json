@@ -46,6 +46,7 @@
     "require-dev": {
         "php": "^8.0",
         "phpunit/phpunit": "^9.5",
-        "orchestra/testbench": "^7.0"
+        "orchestra/testbench": "^7.0",
+        "phpstan/phpstan": "^1.4"
     }
 }
