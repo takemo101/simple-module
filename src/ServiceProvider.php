@@ -47,7 +47,7 @@ class ServiceProvider extends BaseServiceProvider
         /**
          * @var ManagerContract
          */
-        $manager = $this->app['simple-module.manager'];
+        $manager = $this->app->get('simple-module.manager');
         $manager->load();
 
         $this->registerConsoleCommands();

@@ -1,5 +1,9 @@
 # The Simple Module For Laravel
 
+[![Testing](https://github.com/takemo101/simple-module/actions/workflows/testing.yml/badge.svg)](https://github.com/takemo101/simple-module/actions/workflows/testing.yml)
+[![PHPStan](https://github.com/takemo101/simple-module/actions/workflows/phpstan.yml/badge.svg)](https://github.com/takemo101/simple-module/actions/workflows/phpstan.yml)
+[![Validate Composer](https://github.com/takemo101/simple-module/actions/workflows/composer.yml/badge.svg)](https://github.com/takemo101/simple-module/actions/workflows/composer.yml)
+
 A very simple modular system for Laravel.  
 Enjoy!  
 

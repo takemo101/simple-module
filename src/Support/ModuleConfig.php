@@ -130,7 +130,7 @@ final class ModuleConfig
             Arr::get($config, 'denies', Arr::get($config, 'deny', [])),
             ModulePositionCollection::fromArray(
                 array_map(
-                    fn (string $n, string $d) => new ModulePosition($d, $n),
+                    fn ($n, $d) => new ModulePosition($d, (string)$n),
                     array_keys($modules),
                     array_values($modules),
                 ),
